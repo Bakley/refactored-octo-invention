@@ -1,8 +1,26 @@
 import React, { useState, useCallback } from 'react';
 import './App.css';
+import TaskManager from './components/TaskManager';
+import TaskItem from './components/TaskItem';
 
 function App() {
-  const [tasks, setTasks] = useState([]);
+  const [tasks, setTasks] = useState([
+    {
+      id : 1,
+      text : 'Hello',
+      completed : false
+    },
+    {
+      id : 2,
+      text : 'Wolrd',
+      completed : false
+    },
+    {
+      id : 3,
+      text : 'Yada Yada Yada',
+      completed : false
+    }
+  ]);
   const [taskInput, setTaskInput] = useState('');
   const [editId, setEditId] = useState(null);
   const [error, setError] = useState('');
@@ -34,7 +52,10 @@ function App() {
         // Add new task
         setTasks((prevTasks) => [
           ...prevTasks,
-          { id: Date.now(), text: taskInput, completed: false },
+          { id: Date.now(), 
+            text: taskInput, 
+            completed: false
+          },
         ]);
       }
       setTaskInput(''); // Clear input
@@ -64,7 +85,9 @@ function App() {
 
   return (
     <div className="app">
-      <h1>Task Manager</h1>
+      <TaskManager 
+        data = "Task Manager" 
+      />
       <form onSubmit={handleSubmit} className="task-form">
         <input
           type="text"
@@ -74,28 +97,17 @@ function App() {
           className="task-input"
         />
         <button type="submit" className="submit-button">
+          {/* Tenary Operator => One line if statement (condition ? display if true : display if false ) */}
           {editId !== null ? 'Update Task' : 'Add Task'}
         </button>
         {error && <p className="error">{error}</p>}
       </form>
       <ul className="task-list">
         {tasks.map((task) => (
-          <li key={task.id} className={`task-item ${task.completed ? 'completed' : ''}`}>
-            <input
-              type="checkbox"
-              checked={task.completed}
-              onChange={() => handleToggleComplete(task.id)}
-            />
-            <span>{task.text}</span>
-            <div className="task-actions">
-              <button onClick={() => handleEdit(task)} className="edit-button">
-                Edit
-              </button>
-              <button onClick={() => handleDelete(task.id)} className="delete-button">
-                Delete
-              </button>
-            </div>
-          </li>
+          <TaskItem
+            key={task.id}
+            task={task}
+          />
         ))}
       </ul>
     </div>
