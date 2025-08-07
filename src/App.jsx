@@ -1,80 +1,39 @@
 import React, { useState, useCallback } from 'react';
-import './App.css';
-import TaskManager from './components/TaskManager';
+import TaskForm from './components/TaskForm';
 import TaskItem from './components/TaskItem';
+import './App.css';
 
 function App() {
-  const [tasks, setTasks] = useState([
-    {
-      id : 1,
-      text : 'Hello',
-      completed : false
-    },
-    {
-      id : 2,
-      text : 'Wolrd',
-      completed : false
-    },
-    {
-      id : 3,
-      text : 'Yada Yada Yada',
-      completed : false
-    }
-  ]);
-  const [taskInput, setTaskInput] = useState('');
+  const [tasks, setTasks] = useState([]);
   const [editId, setEditId] = useState(null);
-  const [error, setError] = useState('');
 
-  // Handle input change for task input
-  const handleInputChange = useCallback((event) => {
-    setTaskInput(event.target.value);
-    setError(''); // Clear error on input change
-  }, []);
-
-  // Handle form submission for adding or updating tasks
   const handleSubmit = useCallback(
-    (event) => {
-      event.preventDefault();
-      if (!taskInput.trim()) {
-        setError('Task cannot be empty');
-        return;
-      }
-
+    (taskText, editId) => {
       if (editId !== null) {
-        // Update existing task
         setTasks((prevTasks) =>
           prevTasks.map((task) =>
-            task.id === editId ? { ...task, text: taskInput } : task
+            task.id === editId ? { ...task, text: taskText } : task
           )
         );
         setEditId(null);
       } else {
-        // Add new task
         setTasks((prevTasks) => [
           ...prevTasks,
-          { id: Date.now(), 
-            text: taskInput, 
-            completed: false
-          },
+          { id: Date.now(), text: taskText, completed: false },
         ]);
       }
-      setTaskInput(''); // Clear input
     },
-    [taskInput, editId]
+    [editId]
   );
 
-  // Handle task deletion
   const handleDelete = useCallback((id) => {
     setTasks((prevTasks) => prevTasks.filter((task) => task.id !== id));
   }, []);
 
-  // Handle task editing
   const handleEdit = useCallback((task) => {
-    setTaskInput(task.text);
     setEditId(task.id);
   }, []);
 
-  // Handle task completion toggle
   const handleToggleComplete = useCallback((id) => {
     setTasks((prevTasks) =>
       prevTasks.map((task) =>
@@ -85,28 +44,20 @@ function App() {
 
   return (
     <div className="app">
-      <TaskManager 
-        data = "Task Manager" 
+      <h1>Task Manager</h1>
+      <TaskForm
+        onSubmit={handleSubmit}
+        initialTask={editId !== null ? tasks.find((task) => task.id === editId)?.text || '' : ''}
+        editId={editId}
       />
-      <form onSubmit={handleSubmit} className="task-form">
-        <input
-          type="text"
-          value={taskInput}
-          onChange={handleInputChange}
-          placeholder="Enter a task"
-          className="task-input"
-        />
-        <button type="submit" className="submit-button">
-          {/* Tenary Operator => One line if statement (condition ? display if true : display if false ) */}
-          {editId !== null ? 'Update Task' : 'Add Task'}
-        </button>
-        {error && <p className="error">{error}</p>}
-      </form>
       <ul className="task-list">
         {tasks.map((task) => (
           <TaskItem
             key={task.id}
             task={task}
+            onToggleComplete={handleToggleComplete}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
           />
         ))}
       </ul>
@@ -115,3 +66,4 @@ function App() {
 }
 
 export default App;
+
